@@ -76,11 +76,7 @@ function hoverOnBars(pointData, xval, yval, hovermode) {
     }
 
     function positionFn(di) {
-        return inbox(minPos(di), maxPos(di), maxHoverDistance);
-    }
-
-    function thisBarPositionFn(di) {
-        return inbox(thisBarMinPos(di), thisBarMaxPos(di), maxSpikeDistance);
+        return inbox(thisBarMinPos(di), thisBarMaxPos(di), maxHoverDistance);
     }
 
     function getSize(di) {
@@ -181,7 +177,7 @@ function hoverOnBars(pointData, xval, yval, hovermode) {
     pointData.baseLabel = hoverLabelText(sa, di.b, trace[sizeLetter + 'hoverformat']);
 
     // spikelines always want "closest" distance regardless of hovermode
-    pointData.spikeDistance = (thisBarSizeFn(di) + thisBarPositionFn(di)) / 2;
+    pointData.spikeDistance = (thisBarSizeFn(di) + positionFn(di)) / 2;
     // they also want to point to the data value, regardless of where the label goes
     // in case of bars shifted within groups
     pointData[posLetter + 'Spike'] = pa.c2p(di.p, true);
