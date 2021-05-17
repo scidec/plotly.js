@@ -35,22 +35,19 @@ function hoverOnBars(pointData, xval, yval, hovermode) {
 
     var posVal, sizeVal, posLetter, sizeLetter, dx, dy;
 
-    function thisBarMinPos(di) { return thisBarExtPos(di, -1); }
-    function thisBarMaxPos(di) { return thisBarExtPos(di, 1); }
+    var minPos = function(di) { return thisBarExtPos(di, -1); };
+    var maxPos = function(di) { return thisBarExtPos(di, 1); };
 
     function thisBarExtPos(di, sgn) {
         return di[posLetter] + 0.5 * sgn * di.w;
     }
-
-    var minPos = thisBarMinPos;
-    var maxPos = thisBarMaxPos;
 
     function inbox(_minPos, _maxPos, maxDistance) {
         return Fx.inbox(_minPos - posVal, _maxPos - posVal, maxDistance);
     }
 
     function positionFn(di) {
-        return inbox(thisBarMinPos(di), thisBarMaxPos(di), maxHoverDistance);
+        return inbox(minPos(di), maxPos(di), maxHoverDistance);
     }
 
     function getSize(di) {
@@ -110,18 +107,6 @@ function hoverOnBars(pointData, xval, yval, hovermode) {
 
     // skip points inside axis rangebreaks
     if(cd[pointData.index].p === BADNUM) return;
-
-    // if we get here and we're not in 'closest' mode, push min/max pos back
-    // onto the group - even though that means occasionally the mouse will be
-    // over the hover label.
-    if(!isClosest) {
-        minPos = function(di) {
-            return Math.min(thisBarMinPos(di), di.p - t.bargroupwidth / 2);
-        };
-        maxPos = function(di) {
-            return Math.max(thisBarMaxPos(di), di.p + t.bargroupwidth / 2);
-        };
-    }
 
     // the closest data point
     var index = pointData.index;
