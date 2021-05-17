@@ -41,15 +41,7 @@ function hoverOnBars(pointData, xval, yval, hovermode) {
     function thisBarExtPos(di, sgn) {
         var delta;
         if(trace[posLetter + 'period']) {
-            var w = di.w;
-            var alignment = trace[posLetter + 'periodalignment'];
-            if(alignment === 'start') {
-                delta = (sgn === -1) ? 0 : w;
-            } else if(alignment === 'end') {
-                delta = (sgn === -1) ? -w : 0;
-            } else { // middle
-                delta = (sgn === -1) ? -w / 2 : w / 2;
-            }
+            delta = sgn * di.w / 2;
         } else {
             delta = sgn * t.bardelta / 2;
         }
