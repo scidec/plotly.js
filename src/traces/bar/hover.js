@@ -51,7 +51,7 @@ function hoverOnBars(pointData, xval, yval, hovermode) {
                 delta = (sgn === -1) ? -w / 2 : w / 2;
             }
         } else {
-            delta = sgn * di.w / 2;
+            delta = sgn * t.bardelta / 2;
         }
         return di[posLetter] + delta;
     }
