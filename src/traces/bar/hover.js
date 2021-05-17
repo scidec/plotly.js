@@ -39,17 +39,21 @@ function hoverOnBars(pointData, xval, yval, hovermode) {
     function thisBarMaxPos(di) { return thisBarExtPos(di, 1); }
 
     function thisBarExtPos(di, sgn) {
-        var w = di.w;
-        var delta = sgn * w;
+        var delta;
         if(trace[posLetter + 'period']) {
+            var w = di.w;
             var alignment = trace[posLetter + 'periodalignment'];
             if(alignment === 'start') {
                 delta = (sgn === -1) ? 0 : w;
             } else if(alignment === 'end') {
                 delta = (sgn === -1) ? -w : 0;
+            } else { // middle
+                delta = (sgn === -1) ? -w / 2 : w / 2;
             }
+        } else {
+            delta = sgn * di.w / 2;
         }
-        return di[posLetter] + delta / 2;
+        return di[posLetter] + delta;
     }
 
     var minPos = isClosest ?
