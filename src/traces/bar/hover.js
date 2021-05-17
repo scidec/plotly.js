@@ -42,29 +42,8 @@ function hoverOnBars(pointData, xval, yval, hovermode) {
         return di[posLetter] + 0.5 * sgn * di.w;
     }
 
-    var minPos = isClosest ?
-        thisBarMinPos :
-        function(di) {
-            /*
-             * In compare mode, accept a bar if you're on it *or* its group.
-             * Nearly always it's the group that matters, but in case the bar
-             * was explicitly set wider than its group we'd better accept the
-             * whole bar.
-             *
-             * use `bardelta` instead of `bargroupwidth` so we accept hover
-             * in the gap. That way hover doesn't flash on and off as you
-             * mouse over the plot in compare modes.
-             * In 'closest' mode though the flashing seems inevitable,
-             * without far more complex logic
-             */
-            return Math.min(thisBarMinPos(di), di.p - t.bardelta / 2);
-        };
-
-    var maxPos = isClosest ?
-        thisBarMaxPos :
-        function(di) {
-            return Math.max(thisBarMaxPos(di), di.p + t.bardelta / 2);
-        };
+    var minPos = thisBarMinPos;
+    var maxPos = thisBarMaxPos;
 
     function inbox(_minPos, _maxPos, maxDistance) {
         return Fx.inbox(_minPos - posVal, _maxPos - posVal, maxDistance);
