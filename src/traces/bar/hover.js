@@ -33,7 +33,7 @@ function hoverOnBars(pointData, xval, yval, hovermode) {
     var maxHoverDistance = pointData.maxHoverDistance;
     var maxSpikeDistance = pointData.maxSpikeDistance;
 
-    var posVal, sizeVal, posLetter, sizeLetter, dx, dy, pRangeCalc;
+    var posVal, sizeVal, posLetter, sizeLetter, dx, dy;
 
     function thisBarMinPos(di) { return thisBarExtPos(di, -1); }
     function thisBarMaxPos(di) { return thisBarExtPos(di, 1); }
@@ -67,12 +67,7 @@ function hoverOnBars(pointData, xval, yval, hovermode) {
         };
 
     function inbox(_minPos, _maxPos, maxDistance) {
-        return Fx.inbox(_minPos - posVal, _maxPos - posVal,
-            maxDistance +
-            // add a little to the pseudo-distance for wider bars, so that like scatter,
-            // if you are over two overlapping bars, the narrower one wins.
-            Math.min(1, Math.abs(_maxPos - _minPos) / pRangeCalc) - 1
-        );
+        return Fx.inbox(_minPos - posVal, _maxPos - posVal, maxDistance);
     }
 
     function positionFn(di) {
@@ -98,20 +93,14 @@ function hoverOnBars(pointData, xval, yval, hovermode) {
         var v = sizeVal;
         var b = di.b;
         var s = getSize(di);
-
-        // add a gradient so hovering near the end of a
-        // bar makes it a little closer match
-        return Fx.inbox(b - v, s - v, maxHoverDistance + (s - v) / (s - b) - 1);
+        return Fx.inbox(b - v, s - v, maxHoverDistance);
     }
 
     function thisBarSizeFn(di) {
         var v = sizeVal;
         var b = di.b;
         var s = getSize(di);
-
-        // add a gradient so hovering near the end of a
-        // bar makes it a little closer match
-        return Fx.inbox(b - v, s - v, maxSpikeDistance + (s - v) / (s - b) - 1);
+        return Fx.inbox(b - v, s - v, maxSpikeDistance);
     }
 
     if(trace.orientation === 'h') {
@@ -132,8 +121,6 @@ function hoverOnBars(pointData, xval, yval, hovermode) {
 
     var pa = pointData[posLetter + 'a'];
     var sa = pointData[sizeLetter + 'a'];
-
-    pRangeCalc = Math.abs(pa.r2c(pa.range[1]) - pa.r2c(pa.range[0]));
 
     function dxy(di) { return (dx(di) + dy(di)) / 2; }
     var distfn = Fx.getDistanceFunction(hovermode, dx, dy, dxy);
