@@ -7,6 +7,15 @@ var getTraceColor = require('./get_trace_color');
 var Color = require('../../components/color');
 var fillText = Lib.fillText;
 
+function compareDist(rawD, mrc) {
+    // here we want to always
+    // prioritize the closest data point, at least as long as markers are
+    // the same size or nonexistent, but still try to prioritize small markers too.
+    var rad = Math.max(3, mrc || 0);
+    var kink = 1 - 1 / rad;
+    return (rawD < rad) ? (kink * rawD / rad) : (rawD - rad + kink);
+}
+
 module.exports = function hoverPoints(pointData, xval, yval, hovermode) {
     var cd = pointData.cd;
     var trace = cd[0].trace;
@@ -22,20 +31,12 @@ module.exports = function hoverPoints(pointData, xval, yval, hovermode) {
     // didn't find a point
     if(hoveron.indexOf('points') !== -1) {
         var dx = function(di) {
-            // dx and dy are used in compare modes - here we want to always
-            // prioritize the closest data point, at least as long as markers are
-            // the same size or nonexistent, but still try to prioritize small markers too.
-            var rad = Math.max(3, di.mrc || 0);
-            var kink = 1 - 1 / rad;
-            var dxRaw = Math.abs(xa.c2p(di.x) - xpx);
-            var d = (dxRaw < rad) ? (kink * dxRaw / rad) : (dxRaw - rad + kink);
-            return d;
+            var rawD = Math.abs(xa.c2p(di.x) - xpx);
+            return compareDist(rawD, di.mrc);
         };
         var dy = function(di) {
-            var rad = Math.max(3, di.mrc || 0);
-            var kink = 1 - 1 / rad;
-            var dyRaw = Math.abs(ya.c2p(di.y) - ypx);
-            return (dyRaw < rad) ? (kink * dyRaw / rad) : (dyRaw - rad + kink);
+            var rawD = Math.abs(ya.c2p(di.y) - ypx);
+            return compareDist(rawD, di.mrc);
         };
         var dxy = function(di) {
             // scatter points: d.mrc is the calculated marker radius
