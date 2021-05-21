@@ -16,7 +16,9 @@ function compareDist(rawD, mrc) {
     return (rawD < rad) ? (kink * rawD / rad) : (rawD - rad + kink);
 }
 
-module.exports = function hoverPoints(pointData, xval, yval, hovermode) {
+module.exports = function hoverPoints(pointData, xval, yval, hovermode, opts) {
+    //if(!opts) opts = {};
+    //var inRange = opts.inRange;
     var cd = pointData.cd;
     var trace = cd[0].trace;
     var xa = pointData.xa;
@@ -31,11 +33,15 @@ module.exports = function hoverPoints(pointData, xval, yval, hovermode) {
     // didn't find a point
     if(hoveron.indexOf('points') !== -1) {
         var dx = function(di) {
-            var rawD = Math.abs(xa.c2p(di.x) - xpx);
+            var p = xa.c2p(di.x);
+            //if(inRange && (p < inRange[0] || p > inRange[1])) return Infinity;
+            var rawD = Math.abs(p - xpx);
             return compareDist(rawD, di.mrc);
         };
         var dy = function(di) {
-            var rawD = Math.abs(ya.c2p(di.y) - ypx);
+            var p = ya.c2p(di.y);
+            //if(inRange && (p < inRange[0] || p > inRange[1])) return Infinity;
+            var rawD = Math.abs(p - ypx);
             return compareDist(rawD, di.mrc);
         };
         var dxy = function(di) {

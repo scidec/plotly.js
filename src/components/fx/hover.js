@@ -376,7 +376,7 @@ function _hover(gd, evt, subplot, noHoverEvent) {
     // find the closest point in each trace
     // this is minimum dx and/or dy, depending on mode
     // and the pixel position for the label (labelXpx, labelYpx)
-    function findHoverPoints(customXVal, customYVal) {
+    function findHoverPoints(customX, customY) {
         for(curvenum = 0; curvenum < searchData.length; curvenum++) {
             cd = searchData[curvenum];
 
@@ -399,12 +399,6 @@ function _hover(gd, evt, subplot, noHoverEvent) {
             } else {
                 subplotId = helpers.getSubplot(trace);
                 subploti = subplots.indexOf(subplotId);
-            }
-
-            // within one trace mode can sometimes be overridden
-            _mode = hovermode;
-            if(helpers.isUnifiedHover(_mode)) {
-                _mode = _mode.charAt(0);
             }
 
             // container for new point, also used to pass info into module.hoverPoints
@@ -460,6 +454,14 @@ function _hover(gd, evt, subplot, noHoverEvent) {
 
             closedataPreviousLength = hoverData.length;
 
+            var inRange;
+
+            // within one trace mode can sometimes be overridden
+            _mode = hovermode;
+            if(helpers.isUnifiedHover(_mode)) {
+                _mode = _mode.charAt(0);
+            }
+
             // for a highlighting array, figure out what
             // we're searching for with this element
             if(_mode === 'array') {
@@ -478,9 +480,12 @@ function _hover(gd, evt, subplot, noHoverEvent) {
                         _mode = _mode ? 'closest' : 'y';
                     }
                 }
-            } else if(customXVal !== undefined && customYVal !== undefined) {
-                xval = customXVal;
-                yval = customYVal;
+            } else if(customX && customY) {
+                xval = customX.val;
+                yval = customY.val;
+
+                if(_mode === 'x') inRange = [customX.start, customX.end];
+                if(_mode === 'y') inRange = [customY.start, customY.end];
             } else {
                 xval = xvalArray[subploti];
                 yval = yvalArray[subploti];
@@ -490,7 +495,7 @@ function _hover(gd, evt, subplot, noHoverEvent) {
             if(hoverdistance !== 0) {
                 if(trace._module && trace._module.hoverPoints) {
                     var newPoints = trace._module.hoverPoints(pointData, xval, yval, _mode, {
-                        inRange: true,
+                        inRange: inRange,
                         hoverLayer: fullLayout._hoverlayer
                     });
 
@@ -657,10 +662,10 @@ function _hover(gd, evt, subplot, noHoverEvent) {
         var initLen = hoverData.length;
         var winningPoint = hoverData[0];
 
-        var customXVal = customVal('x', winningPoint, fullLayout);
-        var customYVal = customVal('y', winningPoint, fullLayout);
+        var xWin = customVal('x', winningPoint, fullLayout);
+        var yWin = customVal('y', winningPoint, fullLayout);
 
-        findHoverPoints(customXVal, customYVal);
+        findHoverPoints(xWin, yWin);
 
         var k;
         var seen = {};
@@ -1907,5 +1912,9 @@ function customVal(axLetter, winningPoint, fullLayout) {
         }
     }
 
-    return val;
+    return {
+        start: winningPoint[axLetter + '0'],
+        end: winningPoint[axLetter + '1'],
+        val: val
+    };
 }

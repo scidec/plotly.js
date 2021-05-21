@@ -25,6 +25,7 @@ function hoverPoints(pointData, xval, yval, hovermode, opts) {
 }
 
 function hoverOnBars(pointData, xval, yval, hovermode, opts) {
+    var inRange = opts.inRange;
     var cd = pointData.cd;
     var trace = cd[0].trace;
     var t = cd[0].t;
@@ -57,17 +58,17 @@ function hoverOnBars(pointData, xval, yval, hovermode, opts) {
              * In 'closest' mode though the flashing seems inevitable,
              * without far more complex logic
              */
-            return Math.min(thisBarMinPos(di), di.p - t.bardelta / 2);
+            return Math.min(thisBarMinPos(di), di.p - (inRange ? di.w : t.bardelta) / 2);
         };
 
     var maxPos = isClosest ?
         thisBarMaxPos :
         function(di) {
-            return Math.max(thisBarMaxPos(di), di.p + t.bardelta / 2);
+            return Math.max(thisBarMaxPos(di), di.p + (inRange ? di.w : t.bardelta) / 2);
         };
 
     function inbox(_minPos, _maxPos, maxDistance) {
-        if(opts.inRange) maxDistance = 0;
+        if(inRange) maxDistance = 0;
 
         // add a little to the pseudo-distance for wider bars, so that like scatter,
         // if you are over two overlapping bars, the narrower one wins.
