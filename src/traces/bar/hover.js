@@ -67,7 +67,7 @@ function hoverOnBars(pointData, xval, yval, hovermode, opts) {
         };
 
     function inbox(_minPos, _maxPos, maxDistance) {
-        if(opts.finiteRange) maxDistance = 0;
+        if(opts.inRange) maxDistance = 0;
 
         // add a little to the pseudo-distance for wider bars, so that like scatter,
         // if you are over two overlapping bars, the narrower one wins.

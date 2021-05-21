@@ -490,7 +490,7 @@ function _hover(gd, evt, subplot, noHoverEvent) {
             if(hoverdistance !== 0) {
                 if(trace._module && trace._module.hoverPoints) {
                     var newPoints = trace._module.hoverPoints(pointData, xval, yval, _mode, {
-                        finiteRange: true,
+                        inRange: true,
                         hoverLayer: fullLayout._hoverlayer
                     });
 
