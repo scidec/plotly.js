@@ -509,6 +509,8 @@ proto.updateFx = function(fullLayout, geoLayout) {
         var lonlat = _this.projection.invert(d3.mouse(this));
 
         if(!lonlat || isNaN(lonlat[0]) || isNaN(lonlat[1])) {
+            console.log('case A');
+            console.log(lonlat);
             return dragElement.unhover(gd, d3.event);
         }
 
@@ -520,6 +522,7 @@ proto.updateFx = function(fullLayout, geoLayout) {
 
     bgRect.on('mouseout', function() {
         if(gd._dragging) return;
+        console.log('case B');
         dragElement.unhover(gd, d3.event);
     });
 
