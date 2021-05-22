@@ -44,9 +44,8 @@ case $1 in
     no-gl-jasmine)
         set_tz
 
-        SUITE=$(circleci tests glob "$ROOT/test/jasmine/tests/*" | circleci tests split)
         MAX_AUTO_RETRY=2
-        retry npm run test-jasmine -- $SUITE --skip-tags=gl,noCI,flaky || EXIT_STATE=$?
+        retry npm run test-jasmine -- geo --skip-tags=gl,noCI,flaky || EXIT_STATE=$?
 
         exit $EXIT_STATE
         ;;

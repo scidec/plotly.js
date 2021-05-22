@@ -225,36 +225,6 @@ workflows:
   build-and-test:
     jobs:
       - install-and-cibuild
-      - jasmine-bundle:
-          requires:
-            - install-and-cibuild
       - no-gl-jasmine:
           requires:
             - install-and-cibuild
-      - webgl-jasmine:
-          requires:
-            - install-and-cibuild
-      - no-gl-flaky-jasmine:
-          requires:
-            - install-and-cibuild
-      - stable-image:
-          requires:
-            - install-and-cibuild
-      - flaky-image:
-          requires:
-            - install-and-cibuild
-      - mock-validation:
-          requires:
-            - install-and-cibuild
-      - source-syntax:
-          requires:
-            - install-and-cibuild
-      - publish-dist:
-          requires:
-            - install-and-cibuild
-      - test-dist1:
-          requires:
-            - publish-dist
-      - test-dist2:
-          requires:
-            - publish-dist
