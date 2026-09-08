@@ -12,6 +12,26 @@ where X.Y.Z is the semver of most recent plotly.js release.
 ## [X.Y.Z] -- UNRELEASED
 
 
+## [4.1.0] -- 2026-09-08
+
+### Added
+- Add an opt-in modebar button for downloading Plotly figures as JSON [[#7990](https://github.com/plotly/plotly.js/pull/7990), [#8022](https://github.com/plotly/plotly.js/pull/8022)], with thanks to @gokul-debugger for the contribution!
+- Add `legend.groupdoubleclick` to set the group behavior for a legend double-click [[#7997](https://github.com/plotly/plotly.js/pull/7997)], with thanks to @rascal-sl for the contribution!
+
+### Changed
+- Increase default double-click delay threshold to 500ms (from 300) [[#8014](https://github.com/plotly/plotly.js/pull/8014)]
+
+### Fixed
+- Correct the `showspikes` axis attribute description to clarify that it applies for all `hovermode` values except when `hovermode` is *false* [[#7981](https://github.com/plotly/plotly.js/pull/7981)], with thanks for @CAOShurong for the contribution!
+- Update country-iso-search to v0.1.2 to fix issue with UTF-8 characters being decoded incorrectly [[#7994](https://github.com/plotly/plotly.js/pull/7994)]
+- Compile TypeScript files under `src/` to JavaScript during packaging to fix Node resolution [[#8000](https://github.com/plotly/plotly.js/pull/8000)]
+- Include type defs in appropriate partial bundles [[#8001](https://github.com/plotly/plotly.js/pull/8001)]
+- Add TypeScript declarations for the modular `lib/` entry points [[#8009](https://github.com/plotly/plotly.js/pull/8009)]
+- Handle regex enum values when generating schema types [[#8010](https://github.com/plotly/plotly.js/pull/8010)]
+- Include trace-contributed layout attributes in generated types [[#8020](https://github.com/plotly/plotly.js/pull/8020)]
+- Resolve the per-point marker color for hover labels in `scattergl`, `quiver` traces [[#8027](https://github.com/plotly/plotly.js/pull/8027)]
+
+
 ## [4.0.0] -- 2026-08-24
 
 ### Added
