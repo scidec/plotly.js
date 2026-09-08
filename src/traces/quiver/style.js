@@ -24,7 +24,12 @@ function colorscaleStroke(paths, trace) {
             var vVal = (trace.v && trace.v[cdi.i]) || 0;
             value = Math.sqrt(uVal * uVal + vVal * vVal);
         }
-        return colorFunc(value);
+
+        // Keep the mapped color on the point, under the name that the shared
+        // hover code reads, so that the hover label matches the arrow
+        cdi.mcc = colorFunc(value);
+
+        return cdi.mcc;
     });
 }
 
