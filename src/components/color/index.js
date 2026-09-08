@@ -64,6 +64,13 @@ const snap = (c) => ({ ...c, r: snap01(c.r), g: snap01(c.g), b: snap01(c.b) });
 const formatRgb = (c) => culoriFormatRgb(snap(c));
 const formatHex = (c) => culoriFormatHex(snap(c));
 
+const describe = (v) => {
+    if (typeof v === 'string') return `"${v}"`;
+    if (isArrayOrTypedArray(v)) return `${v.constructor?.name ?? 'Array'}(${v.length})`;
+    if (typeof v === 'object') return v.constructor?.name ?? 'Object';
+    return `${typeof v} ${v}`;
+};
+
 /**
  * Parse a color specifier string and return it as a culori rgb color object.
  *
@@ -74,7 +81,7 @@ const formatHex = (c) => culoriFormatHex(snap(c));
 const parse = (cstr, silent) => {
     const c = toColor(cstr);
     if (!c) {
-        if (!silent && cstr != null) warn(`Invalid color specifier: "${cstr}". Defaulting to "#000"`);
+        if (!silent && cstr != null) warn(`Invalid color specifier: ${describe(cstr)}. Defaulting to "#000"`);
         return BLACK;
     }
     // `toRgb` omits alpha when it's 1; make sure it's added since we expect it

@@ -94,6 +94,11 @@ module.exports = function calc(gd, trace) {
 
             if(hasMarkerColorArray) {
                 var ci = markerColor[i];
+
+                // Keep the per-point color under the name that the shared hover
+                // code reads. Without it, `getTraceColor` reads the whole array.
+                cdi.mc = ci;
+
                 if(isNumeric(ci)) {
                     if(ci < cMin) cMin = ci;
                     if(ci > cMax) cMax = ci;
