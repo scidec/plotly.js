@@ -1,5 +1,5 @@
 /**
-* plotly.js (geo) v4.0.0
+* plotly.js (geo) v4.1.0
 * Copyright 2012-2026, Plotly, Inc.
 * All rights reserved.
 * Licensed under the MIT license
@@ -78,7 +78,7 @@ var Plotly = (() => {
   var require_version = __commonJS({
     "src/version.js"(exports) {
       "use strict";
-      exports.version = "4.0.0";
+      exports.version = "4.1.0";
     }
   });
 
@@ -14472,7 +14472,7 @@ var Plotly = (() => {
         },
         doubleClickDelay: {
           valType: "number",
-          dflt: 300,
+          dflt: 500,
           min: 0
         },
         showAxisDragHandles: {
@@ -14761,11 +14761,18 @@ var Plotly = (() => {
       var snap = (c) => __spreadProps(__spreadValues({}, c), { r: snap01(c.r), g: snap01(c.g), b: snap01(c.b) });
       var formatRgb = (c) => culoriFormatRgb(snap(c));
       var formatHex = (c) => culoriFormatHex(snap(c));
+      var describe = (v) => {
+        var _a, _b, _c, _d;
+        if (typeof v === "string") return `"${v}"`;
+        if (isArrayOrTypedArray(v)) return `${(_b = (_a = v.constructor) == null ? void 0 : _a.name) != null ? _b : "Array"}(${v.length})`;
+        if (typeof v === "object") return (_d = (_c = v.constructor) == null ? void 0 : _c.name) != null ? _d : "Object";
+        return `${typeof v} ${v}`;
+      };
       var parse = (cstr, silent) => {
         var _a;
         const c = toColor(cstr);
         if (!c) {
-          if (!silent && cstr != null) warn(`Invalid color specifier: "${cstr}". Defaulting to "#000"`);
+          if (!silent && cstr != null) warn(`Invalid color specifier: ${describe(cstr)}. Defaulting to "#000"`);
           return BLACK;
         }
         (_a = c.alpha) != null ? _a : c.alpha = 1;
@@ -33880,6 +33887,11 @@ var Plotly = (() => {
           dflt: "togglegroup",
           editType: "legend"
         },
+        groupdoubleclick: {
+          valType: "enumerated",
+          values: ["toggleitem", "togglegroup"],
+          editType: "legend"
+        },
         titleclick: {
           valType: "enumerated",
           values: ["toggle", "toggleothers", false],
@@ -34136,7 +34148,8 @@ var Plotly = (() => {
         coerce("itemwidth");
         coerce("itemclick");
         coerce("itemdoubleclick");
-        coerce("groupclick");
+        const groupClick = coerce("groupclick");
+        coerce("groupdoubleclick", groupClick);
         coerce("xanchor", defaultXAnchor);
         coerce("yanchor", defaultYAnchor);
         coerce("maxheight");
@@ -34201,12 +34214,12 @@ var Plotly = (() => {
       var pushUnique = Lib.pushUnique;
       var helpers = require_helpers3();
       var SHOWISOLATETIP = true;
-      exports.handleItemClick = function handleItemClick(g, gd, legendObj, mode) {
+      exports.handleItemClick = function handleItemClick(g, gd, legendObj, mode, numClicks) {
         var fullLayout = gd._fullLayout;
         if (gd._dragged || gd._editing) return;
         var legendItem = g.data()[0][0];
         if (legendItem.groupTitle && legendItem.noClick) return;
-        var groupClick = legendObj.groupclick;
+        const groupClick = numClicks === 2 ? legendObj.groupdoubleclick : legendObj.groupclick;
         if (mode === "toggle" && legendObj.itemdoubleclick === "toggleothers" && SHOWISOLATETIP && gd.data && gd._context.showTips) {
           Lib.notifier(Lib._(gd, "Double-click on legend to isolate one trace"), "long", gd);
           SHOWISOLATETIP = false;
@@ -34336,12 +34349,13 @@ var Plotly = (() => {
           } else if (mode === "toggleothers") {
             var isClicked, isInGroup, notInLegend, otherState, _item;
             var isIsolated = true;
+            const isolateGroup = hasLegendgroup && toggleGroup;
             for (i = 0; i < allLegendItems.length; i++) {
               _item = allLegendItems[i];
               isClicked = _item === fullTrace;
               notInLegend = _item.showlegend !== true;
               if (isClicked || notInLegend) continue;
-              isInGroup = hasLegendgroup && _item.legendgroup === legendgroup;
+              isInGroup = isolateGroup && _item.legendgroup === legendgroup;
               if (!isInGroup && _item.legend === thisLegend && _item.visible === true && !Registry.traceIs(_item, "notLegendIsolatable")) {
                 isIsolated = false;
                 break;
@@ -34361,7 +34375,7 @@ var Plotly = (() => {
                   otherState = isIsolated ? true : "legendonly";
                   isClicked = _item === fullTrace;
                   notInLegend = _item.showlegend !== true && !_item.legendgroup;
-                  isInGroup = isClicked || hasLegendgroup && _item.legendgroup === legendgroup;
+                  isInGroup = isClicked || isolateGroup && _item.legendgroup === legendgroup;
                   setVisibility(_item, isInGroup || notInLegend ? true : otherState);
                   break;
               }
@@ -35638,14 +35652,14 @@ var Plotly = (() => {
           if (clickVal === false) return;
           legend._clickTimeout = setTimeout(function() {
             if (!gd._fullLayout) return;
-            if (itemClick) handleItemClick(legendItem, gd, legend, itemClick);
+            if (itemClick) handleItemClick(legendItem, gd, legend, itemClick, numClicks);
           }, gd._context.doubleClickDelay);
         } else if (numClicks === 2) {
           if (legend._clickTimeout) clearTimeout(legend._clickTimeout);
           gd._legendMouseDownTime = 0;
           var dblClickVal = Events.triggerHandler(gd, "plotly_legenddoubleclick", evtData);
           if (dblClickVal !== false && clickVal !== false && itemDoubleClick) {
-            handleItemClick(legendItem, gd, legend, itemDoubleClick);
+            handleItemClick(legendItem, gd, legend, itemDoubleClick, numClicks);
           }
         }
       }
@@ -38220,6 +38234,12 @@ var Plotly = (() => {
           path: "m518 386q0 8-5 13t-13 5q-37 0-63-27t-26-63q0-8 5-13t13-5 12 5 5 13q0 23 16 38t38 16q8 0 13 5t5 13z m125-73q0-59-42-101t-101-42-101 42-42 101 42 101 101 42 101-42 42-101z m-572-320h858v71h-858v-71z m643 320q0 89-62 152t-152 62-151-62-63-152 63-151 151-63 152 63 62 151z m-571 358h214v72h-214v-72z m-72-107h858v143h-462l-36-71h-360v-72z m929 143v-714q0-30-21-51t-50-21h-858q-29 0-50 21t-21 51v714q0 30 21 51t50 21h858q29 0 50-21t21-51z",
           transform: "matrix(1 0 0 -1 0 850)"
         },
+        curlybraces: {
+          width: 18,
+          height: 16,
+          path: "M 9,4 C 7.354992,4 6,5.354992 6,7 V 9 C 6,9.2999997 5.8778068,9.8883542 5.5878906,10.291016 5.2979744,10.693677 4.9222213,11 4,11 a 1.0001,1.0001 0 0 0 0,2 c 0.2999997,0 0.8883542,0.122193 1.2910156,0.412109 C 5.693677,13.702026 6,14.077779 6,15 v 2 c 0,1.645008 1.354992,3 3,3 h 0.5 a 1,1 0 0 0 1,-1 1,1 0 0 0 -1,-1 H 9 C 8.4358712,18 8,17.564129 8,17 V 15 C 8,13.625876 7.3766799,12.602305 6.6113281,11.96875 6.8086352,11.794047 7.0679793,11.657537 7.2109375,11.458984 7.8210204,10.611647 8,9.6999993 8,9 V 7 C 8,6.4358712 8.4358712,6 9,6 h 0.5 a 1,1 0 0 0 1,-1 1,1 0 0 0 -1,-1 z m 5.5,0 a 1,1 0 0 0 -1,1 1,1 0 0 0 1,1 H 15 c 0.564129,0 1,0.4358712 1,1 v 2 c 0,0.6999993 0.17898,1.611647 0.789062,2.458984 0.142959,0.198553 0.402303,0.335063 0.59961,0.509766 C 16.62332,12.602305 16,13.625876 16,15 v 2 c 0,0.564129 -0.435871,1 -1,1 h -0.5 a 1,1 0 0 0 -1,1 1,1 0 0 0 1,1 H 15 c 1.645008,0 3,-1.354992 3,-3 v -2 c 0,-0.922221 0.306323,-1.297974 0.708984,-1.587891 C 19.111646,13.122193 19.7,13 20,13 a 1.0001,1.0001 0 0 0 0,-2 C 19.077779,11 18.702026,10.693677 18.412109,10.291016 18.122193,9.8883542 18,9.2999997 18,9 V 7 C 18,5.354992 16.645008,4 15,4 Z",
+          transform: "translate(-3 -4)"
+        },
         zoombox: {
           width: 1e3,
           height: 1e3,
@@ -40655,6 +40675,20 @@ var Plotly = (() => {
           });
         }
       };
+      modeBarButtons.downloadJson = {
+        name: "downloadJson",
+        title: function(gd) {
+          return _(gd, "Download plot as JSON");
+        },
+        icon: Icons.curlybraces,
+        click: function(gd) {
+          Registry.call("downloadImage", gd, { format: "full-json" }).then(function(filename) {
+            Lib.notifier(_(gd, "JSON download succeeded") + " - " + filename, "long", gd);
+          }).catch(function() {
+            Lib.notifier(_(gd, "Sorry, there was a problem downloading your JSON file!"), "long", gd);
+          });
+        }
+      };
       modeBarButtons.sendChartToCloud = {
         name: "sendChartToCloud",
         title: function(gd) {
@@ -41348,7 +41382,7 @@ var Plotly = (() => {
         "hovercompare",
         "togglehover",
         "togglespikelines"
-      ].concat(DRAW_MODES);
+      ].concat(DRAW_MODES, ["downloadJson"]);
       var foreButtons = [];
       var addToForeButtons = function(b) {
         if (backButtons.indexOf(b._cat || b.name) !== -1) return;
@@ -41819,9 +41853,7 @@ var Plotly = (() => {
           }
           groups.push(out);
         }
-        var commonGroup = ["toImage"];
-        if (context.showSendToCloud) commonGroup.push("sendChartToCloud");
-        addGroup(commonGroup);
+        var addDownloadJson = false;
         var zoomGroup = [];
         var hoverGroup = [];
         var resetGroup = [];
@@ -41905,11 +41937,17 @@ var Plotly = (() => {
                 enableHover("hoverClosestGeo");
                 enableHover("hoverClosest3d");
                 enableHover("hoverClosestPie");
+              } else if (b === "downloadjson") {
+                addDownloadJson = true;
               }
             } else newList.push(b);
           }
           buttonsToAdd = newList;
         }
+        var commonGroup = ["toImage"];
+        if (addDownloadJson) commonGroup.push("downloadJson");
+        if (context.showSendToCloud) commonGroup.push("sendChartToCloud");
+        addGroup(commonGroup);
         addGroup(dragModeGroup);
         addGroup(zoomGroup.concat(resetGroup));
         addGroup(enabledHoverGroup);
@@ -54664,7 +54702,7 @@ var Plotly = (() => {
         } else if (trace.mode === "none") {
           return trace.fill ? trace.fillcolor : "";
         } else {
-          var mc = di.mcc || (trace.marker || {}).color;
+          var mc = di.mcc || di.mc || (trace.marker || {}).color;
           var mlc = di.mlcc || ((trace.marker || {}).line || {}).color;
           tc = mc && Color.opacity(mc) ? mc : mlc && Color.opacity(mlc) && (di.mlw || ((trace.marker || {}).line || {}).width) ? mlc : "";
           if (tc) {
@@ -64880,6 +64918,7 @@ var Plotly = (() => {
           aliases: [
             "\u{1F1E7}\u{1F1E9}",
             "bangla desh",
+            "east pakistan",
             "gonaoprojatontri bangladesh",
             "peoples republic of bangladesh",
             "\u0997\u09A3\u09AA\u09CD\u09B0\u099C\u09BE\u09A4\u09A8\u09CD\u09A4\u09CD\u09B0\u09C0 \u09AC\u09BE\u0982\u09B2\u09BE\u09A6\u09C7\u09B6",
@@ -65175,6 +65214,7 @@ var Plotly = (() => {
             "dem republic of the congo",
             "democratic republic of congo",
             "dr congo",
+            "drc",
             "rd congo",
             "rep demcongo",
             "republic of the congo",
@@ -66501,6 +66541,8 @@ var Plotly = (() => {
             "irjm",
             "ish republika jugosllave e maqedonise",
             "macedonia",
+            "macedonia former yugoslav republic of",
+            "macedonia fyr",
             "maqedoni",
             "maqedonia",
             "maqedonia e veriut",
@@ -66777,8 +66819,8 @@ var Plotly = (() => {
           iso3: "NRU",
           iso2: "NR",
           m49: "520",
-          name: "Nauru",
-          aliases: ["\u{1F1F3}\u{1F1F7}", "naoero", "pleasant island", "republic of nauru"]
+          name: "Naoero",
+          aliases: ["\u{1F1F3}\u{1F1F7}", "nauru", "pleasant island", "republic of naoero", "republic of nauru"]
         },
         {
           iso3: "NZL",
@@ -67767,7 +67809,7 @@ var Plotly = (() => {
         }
       ];
       function sanitize(s) {
-        return s.normalize("NFD").replace(/[̀-ͯ]/g, "").normalize("NFC").toLowerCase().replace(/[ً-ٟ]/g, "").replace(/['‘’ʻʼʽˈ′`]/g, "").replace(/&/g, " and ").replace(/([,(])\s*the\b/g, "$1").replace(/[.(),[\]]/g, "").replace(/[-–—]/g, " ").replace(/\bst\b/g, "saint").trim().replace(/\s+/g, " ").replace(/^the\s+/, "");
+        return s.normalize("NFD").replace(/[\u0300-\u036F]/g, "").normalize("NFC").toLowerCase().replace(/[\u064B-\u065F]/g, "").replace(/['\u2018\u2019\u02BB\u02BC\u02BD\u02C8\u2032`]/g, "").replace(/&/g, " and ").replace(/([,(])\s*the\b/g, "$1").replace(/[.(),[\]]/g, "").replace(/[-\u2013\u2014]/g, " ").replace(/\bst\b/g, "saint").trim().replace(/\s+/g, " ").replace(/^the\s+/, "");
       }
       function createLookup(records) {
         const byAlpha32 = /* @__PURE__ */ new Map();
