@@ -270,6 +270,41 @@ describe('Test quiver interactions', function() {
         .then(done, done.fail);
     });
 
+    it('should use the per-point arrow color for the hover label', async () => {
+        const fig = {
+            data: [
+                {
+                    type: 'quiver',
+                    x: [1, 2, 3],
+                    y: [1, 2, 3],
+                    u: [1, 0, -1],
+                    v: [0, 1, 0],
+                    marker: {
+                        color: [0, 5, 10],
+                        colorscale: 'Viridis',
+                        showscale: false
+                    }
+                }
+            ],
+            layout: {
+                margin: { l: 0, t: 0, r: 0, b: 0 },
+                width: 400,
+                height: 400
+            }
+        };
+
+        await Plotly.newPlot(gd, fig);
+
+        mouseEvent('mousemove', 200, 200);
+        await delay(20)();
+
+        const label = document.querySelector('g.hovertext path');
+        const arrow = gd.querySelectorAll('g.trace.quiver path.js-line')[1];
+
+        expect(window.getComputedStyle(label).fill).toBe('rgb(33, 145, 140)', 'hover label');
+        expect(window.getComputedStyle(arrow).stroke).toBe('rgb(33, 145, 140)', 'arrow');
+    });
+
     it('should render multiple quiver traces', function(done) {
         Plotly.newPlot(gd, [{
             type: 'quiver',
@@ -344,4 +379,3 @@ describe('Test quiver interactions', function() {
         .then(done, done.fail);
     });
 });
-
